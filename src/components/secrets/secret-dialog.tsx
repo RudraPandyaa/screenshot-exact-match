@@ -16,9 +16,10 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   secret?: Secret | null;
   defaultEnv: EnvironmentId;
+  presetKey?: string;
 }
 
-export function SecretDialog({ open, onOpenChange, secret, defaultEnv }: Props) {
+export function SecretDialog({ open, onOpenChange, secret, defaultEnv, presetKey }: Props) {
   const { secrets, upsertSecret } = useWorkspace();
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
@@ -27,11 +28,11 @@ export function SecretDialog({ open, onOpenChange, secret, defaultEnv }: Props) 
 
   useEffect(() => {
     if (!open) return;
-    setKey(secret?.key ?? "");
+    setKey(secret?.key ?? presetKey ?? "");
     setValue(secret?.value ?? "");
     setEnvs(secret?.environments ?? [defaultEnv]);
     setErrors({});
-  }, [open, secret, defaultEnv]);
+  }, [open, secret, defaultEnv, presetKey]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();

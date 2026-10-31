@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const { q } = Route.useSearch();
-  const { secrets, requests, projectId } = useWorkspace();
+  const { secrets, requests, projectId, simulateErrors } = useWorkspace();
   const project = PROJECTS.find((p) => p.id === projectId)!;
   const [env, setEnv] = useState<EnvironmentId>("development");
   const [query, setQuery] = useState(q ?? "");
@@ -42,17 +42,17 @@ function Dashboard() {
 
   useEffect(() => setQuery(q ?? ""), [q]);
 
-  // Simulated fetch on env switch. The first retry after a "?fail" query shows the error state.
+  // Simulated fetch on env switch; Settings can force the error state.
   useEffect(() => {
     setStatus("loading");
-    const t = setTimeout(() => setStatus(query === "?fail" && attempt === 0 ? "error" : "ready"), 450);
+    const t = setTimeout(() => setStatus(simulateErrors ? "error" : "ready"), 450);
     return () => clearTimeout(t);
-  }, [env, attempt]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [env, attempt, simulateErrors]);
 
   const envSecrets = useMemo(() => secrets.filter((s) => s.environments.includes(env)), [secrets, env]);
   const visible = useMemo(() => {
     const term = query.trim().toLowerCase();
-    if (!term || term === "?fail") return envSecrets;
+    if (!term) return envSecrets;
     return envSecrets.filter((s) => s.key.toLowerCase().includes(term));
   }, [envSecrets, query]);
   const counts = Object.fromEntries(ENVIRONMENTS.map((e) => [e.id, secrets.filter((s) => s.environments.includes(e.id)).length])) as Record<EnvironmentId, number>;
@@ -125,8 +125,7 @@ function Dashboard() {
         </Panel>
       </div>
 
-      <SecretDialog open={dialogOpen} onOpenChange={setDialogOpen} secret={editing?.id ? editing : null} defaultEnv={env} key={editing?.key ?? "new"} />
-      {editing && !editing.id && dialogOpen && null}
+      <SecretDialog open={dialogOpen} onOpenChange={setDialogOpen} secret={editing?.id ? editing : null} presetKey={editing?.id ? undefined : editing?.key} defaultEnv={env} />
       <ImportEnvDialog open={importOpen} onOpenChange={setImportOpen} env={env} />
     </div>
   );

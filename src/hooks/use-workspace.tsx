@@ -11,6 +11,8 @@ interface WorkspaceState {
   deleteSecret: (id: string) => void;
   requests: AccessRequest[];
   decide: (id: string, status: RequestStatus) => void;
+  simulateErrors: boolean;
+  setSimulateErrors: (v: boolean) => void;
 }
 
 const Ctx = createContext<WorkspaceState | null>(null);
@@ -20,6 +22,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [projectId, setProjectId] = useState(PROJECTS[0].id);
   const [secrets, setSecrets] = useState<Secret[]>(INITIAL_SECRETS);
+  const [simulateErrors, setSimulateErrors] = useState(false);
   const [requests, setRequests] = useState<AccessRequest[]>(INITIAL_REQUESTS);
 
   const upsertSecret = useCallback<WorkspaceState["upsertSecret"]>((s) => {
@@ -54,8 +57,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ projectId, setProjectId, secrets, upsertSecret, upsertMany, deleteSecret, requests, decide }),
-    [projectId, secrets, upsertSecret, upsertMany, deleteSecret, requests, decide],
+    () => ({ projectId, setProjectId, secrets, upsertSecret, upsertMany, deleteSecret, requests, decide, simulateErrors, setSimulateErrors }),
+    [projectId, secrets, upsertSecret, upsertMany, deleteSecret, requests, decide, simulateErrors],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
