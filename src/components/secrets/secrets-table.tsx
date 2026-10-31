@@ -64,7 +64,7 @@ export function SecretsTable({ secrets, status, onRetry, onEdit, emptyAction, fi
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => onEdit(s)}><Pencil /> Edit</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" onSelect={() => setToDelete(s)}><Trash2 /> Delete</DropdownMenuItem>
+          <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setToDelete(s)}><Trash2 /> Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
